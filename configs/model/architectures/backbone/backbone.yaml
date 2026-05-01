@@ -1,2 +1,8 @@
-_target_: src.modular.backbone.ResNet18
+# backbone.yaml
+# This file should contain the configuration for the backbone only
+
+name: resnet50
+# or whatever parameters your BackboneConfig has
+num_layers: 50
 pretrained: true
+# ... other backbone-specific params
