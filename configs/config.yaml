@@ -1,0 +1,4 @@
+defaults:
+  - config_schema
+  - model: architectures/model1
+  - data: data_module

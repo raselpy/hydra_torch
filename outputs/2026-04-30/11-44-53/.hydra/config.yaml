@@ -1,0 +1,3 @@
+data:
+  _target_: src.modular.data.Data
+  data: ./data

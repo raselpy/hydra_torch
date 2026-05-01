@@ -1,0 +1,5 @@
+data:
+  _target_: src.modular.data.Data
+  data: ./data
+model:
+  _target_: src.modular.model.Net
