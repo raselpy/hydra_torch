@@ -1,8 +1,5 @@
-# backbone.yaml
-# This file should contain the configuration for the backbone only
+# configs/model/architectures/backbone/backbone.yaml
 
-name: resnet50
-# or whatever parameters your BackboneConfig has
-num_layers: 50
+_target_: "src.models.backbones.resnet.ResNet18Backbone"   # Update to your actual class
+
 pretrained: true
-# ... other backbone-specific params

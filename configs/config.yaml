@@ -1,4 +1,6 @@
 defaults:
+  - _self_
   - config_schema
   - model: architectures/model1
+  - model/architectures/backbone: backbone
   - data: data_module
