@@ -1,4 +1,4 @@
 defaults:
   - model_module_schema
-  - backbone: resnet18.yaml
+  - backbone: resnet18
 

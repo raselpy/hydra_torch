@@ -1,2 +1,1 @@
-defaults:
-  - backbone_module_schema
+_target_: "src.hnn.resnetBackbone"
