@@ -1,2 +1,1 @@
-_target_: "src.hnn.resnet"
-random: 10
+_target_: "src.hnn.resnetBackbone"
