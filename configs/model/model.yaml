@@ -1,4 +1,4 @@
 defaults:
-  - backbone: resnet18
+  - model_module_schema
+  - backbone: resnet18.yaml
 
-_target_: "src.hnn"
