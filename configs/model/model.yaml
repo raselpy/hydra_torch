@@ -2,4 +2,3 @@ defaults:
   - backbone: resnet18
 
 _target_: "src.hnn"
-num_classes: 10

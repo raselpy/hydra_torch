@@ -1,5 +1,4 @@
 defaults:
-  - config_schema
+
   - data: data_module
   - model: model
-  - model/backbone: resnet18

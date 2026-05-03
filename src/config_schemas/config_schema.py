@@ -2,7 +2,7 @@ from hydra.core.config_store import ConfigStore
 from pydantic.dataclasses import dataclass
 from omegaconf import MISSING
 
-from src.config_schemas import  data_module_schema
+from src.config_schemas import data_module_schema
 
 
 @dataclass
