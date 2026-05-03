@@ -1,4 +1,0 @@
-# configs/model/architectures/model1.yaml
-
-_target_: "src.models.model1.Model1"   # ← Update this path later
-

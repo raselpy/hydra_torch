@@ -1,5 +1,0 @@
-# configs/model/architectures/backbone/backbone.yaml
-
-_target_: "src.models.backbones.resnet.ResNet18Backbone"   # Update to your actual class
-
-pretrained: true

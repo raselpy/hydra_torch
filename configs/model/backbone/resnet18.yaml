@@ -1,0 +1,2 @@
+_target_: "src.hnn.resnet"
+num_classes: 10
