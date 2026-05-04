@@ -1,3 +1,5 @@
-_target_: "src.modular.backbone.ResNet18"
+#_target_: "src.modular.backbone.ResNet18"
+defaults:
+  - backbone_module_schema
 
 pretrained: True

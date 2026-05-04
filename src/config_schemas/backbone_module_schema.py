@@ -6,18 +6,19 @@ from omegaconf import MISSING
 @dataclass
 class BackboneModuleConfig:
     _target_: str = MISSING
+    pretrained: bool = MISSING
 
 
 @dataclass
 class MNISTBackModuleConfig(BackboneModuleConfig):
     _target_: str = "src.modular.backbone.ResNet18"
-    src.modular.backbone.ResNet18
+
 
 
 def setup_config():
     cs = ConfigStore.instance()
     cs.store(
-        group="backbone",
+        group="model/backbone",
         name="backbone_module_schema",
         node=MNISTBackModuleConfig
     )
