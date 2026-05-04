@@ -1,4 +1,5 @@
 defaults:
   - model_module_schema
-  - backbone: resnet18
+#  - backbone: resnet18
+num_classes: 10
 
