@@ -14,7 +14,7 @@ class ModelModuleConfig:
 class MNISTModelModuleConfig(ModelModuleConfig):
     _target_: str = "src.modular.model.Net"
     num_classes: int = MISSING
-    # backbone: Any = MISSING
+    backbone: Any = MISSING
 
 
 def setup_config() -> None:

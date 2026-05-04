@@ -1,1 +1,3 @@
-_target_: "src.hnn.resnetBackbone"
+_target_: "src.modular.backbone.ResNet18"
+
+pretrained: True
