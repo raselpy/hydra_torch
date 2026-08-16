@@ -1,0 +1,6 @@
+defaults:
+  - mnist_task_schema
+  - _self_
+  - model: simple_model
+  - optimizer: adam
+  - loss_function: cross_entropy

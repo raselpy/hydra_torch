@@ -1,0 +1,6 @@
+defaults:
+  - mnist_data_module_schema
+
+batch_size: 128
+num_workers: 4
+data_dir: ./data/mnist

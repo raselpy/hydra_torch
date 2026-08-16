@@ -1,0 +1,4 @@
+defaults: [optimizer_schema]
+_target_: torch.optim.SGD
+lr: 5.0e-05
+weight_decay: 0.2

@@ -1,0 +1,6 @@
+defaults:
+  - cifar10_task_schema
+  - _self_
+  - model: cifar10_model
+  - optimizer: sgd
+  - loss_function: cross_entropy

@@ -1,0 +1,13 @@
+defaults:
+  - model_schema
+
+_target_: hydra_torch.models.CIFAR10Model
+backbone:
+  _target_: hydra_torch.backbones.ResNet50
+  pretrained: true
+adapter:
+  _target_: hydra_torch.adapters.LinearAdapter
+  in_features: 2048
+  out_features: 10
+head:
+  _target_: hydra_torch.heads.IdentityHead
