@@ -1,2 +1,2 @@
-defaults: [loss_function_schema]
-_target_: hydra_torch.loss_functions.CrossEntropyLoss
+
+_target_: torch.nn.CrossEntropyLoss

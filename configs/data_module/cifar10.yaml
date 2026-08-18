@@ -2,5 +2,5 @@ defaults:
   - cifar10_data_module_schema
 
 batch_size: 64
-num_workers: 8
+num_workers: 0
 data_dir: ./data/cifar10
