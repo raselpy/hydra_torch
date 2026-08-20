@@ -1,9 +1,10 @@
+# configs/config.yaml
 defaults:
-  - config_schema
-  - task: cifar10_classification
-  - data_module: cifar10
-  - trainer: gpu
   - _self_
+  - data_module: cifar10
+  - task: cifar10_classification
+  - trainer: gpu
+  - logger: mlflow          # <-- Added default group
 
+experiment_name: "hydra_torch_runs"
 seed: 42
-experiment_name: baseline_phase1

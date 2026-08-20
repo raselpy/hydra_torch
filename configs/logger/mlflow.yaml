@@ -1,0 +1,6 @@
+# configs/logger/mlflow.yaml
+defaults:
+  - mlflow_logger_schema
+
+experiment_name: ${experiment_name}
+tracking_uri: ${oc.env:MLFLOW_TRACKING_URI,file:./mlruns}

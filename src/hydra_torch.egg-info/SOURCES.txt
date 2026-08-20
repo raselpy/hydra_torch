@@ -2,6 +2,7 @@ pyproject.toml
 src/config_schema/__init__.py
 src/config_schema/config_schema.py
 src/config_schema/data_module_schema.py
+src/config_schema/logger_schema.py
 src/config_schema/loss_function_schema.py
 src/config_schema/model_schema.py
 src/config_schema/optimizer_schema.py

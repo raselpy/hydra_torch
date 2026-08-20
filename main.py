@@ -4,50 +4,60 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 from hydra.utils import instantiate
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import Callback
 
-# This import is NOT unused — importing src.config_schema runs its __init__.py,
-# which calls setup_config() and registers cpu_trainer_schema, gpu_trainer_schema,
-# and the data_module/task schemas into Hydra's ConfigStore. Without this import,
-# Hydra cannot resolve `defaults: [gpu_trainer_schema]` (or cpu/task/data_module
-# equivalents), and composition fails at import time, before @hydra.main even
-# runs your function.
+# Registers all schemas into Hydra's ConfigStore
 from src.config_schema import setup_config  # noqa: F401
 
 log = logging.getLogger(__name__)
 
 
-class EpochLogger(Callback):
-    """Prints a permanent one-line summary per epoch to the console/log file,
-    instead of relying on the progress bar (which overwrites itself in place
-    and disappears from scrollback once the run finishes)."""
+class EpochLogger(pl.Callback):
+    """Logs a permanent line per epoch and saves the resolved Hydra config as an MLflow artifact."""
 
-    def on_train_epoch_end(self, trainer, pl_module):
-        metrics = trainer.callback_metrics
-        log.info(
-            f"Epoch {trainer.current_epoch}: "
-            f"train_loss={metrics.get('train_loss_epoch', 'n/a')}, "
-            f"train_acc={metrics.get('train_accuracy', 'n/a')}, "
-            f"val_acc={metrics.get('validation_accuracy', 'n/a')}"
+    def __init__(self, cfg: DictConfig = None):
+        self.cfg = cfg
+
+    def on_fit_start(self, trainer, pl_module):
+        if self.cfg and trainer.logger:
+            for logger in trainer.loggers:
+                if hasattr(logger, "experiment"):
+                    logger.experiment.log_text(
+                        logger.run_id,
+                        OmegaConf.to_yaml(self.cfg),
+                        "hydra_config.yaml",
+                    )
+
+    def on_epoch_end(self, trainer, pl_module):
+        train_loss = trainer.callback_metrics.get("train_loss")
+        val_acc = (
+            trainer.callback_metrics.get("validation_accuracy")
+            or trainer.callback_metrics.get("val_accuracy")
         )
+        if train_loss is not None and val_acc is not None:
+            log.info(f"Epoch {trainer.current_epoch} | Loss: {train_loss:.4f} | Val Acc: {val_acc:.4f}")
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="config")
 def main(cfg: DictConfig) -> None:
-    # 1. Reproducibility: set seed if provided in top-level config
     if "seed" in cfg:
         pl.seed_everything(cfg.seed, workers=True)
 
-    # 2. Instantiate Lightning components using Hydra's _target_ pattern
     data_module = instantiate(cfg.data_module)
     task = instantiate(cfg.task)
-    trainer = instantiate(cfg.trainer, callbacks=[EpochLogger()])
 
-    # 3. Run training
+    # Optional MLflow logger
+    logger = instantiate(cfg.logger) if "logger" in cfg else None
+
+    # Hydra-style instantiation of the Trainer (handles _target_ correctly)
+    trainer = instantiate(
+        cfg.trainer,
+        logger=logger,
+        callbacks=[EpochLogger(cfg=cfg)],
+    )
+
     log.info("Starting training loop...")
     trainer.fit(task, datamodule=data_module)
 
-    # 4. Run evaluation on the held-out test set
     log.info("Starting testing loop...")
     trainer.test(task, datamodule=data_module)
 
