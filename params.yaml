@@ -1,0 +1,7 @@
+data_module: cifar10
+task: cifar10_classification
+trainer: gpu
+experiment_name: hydra_torch_runs
+seed: 42
+max_epochs: 10
+batch_size: 64

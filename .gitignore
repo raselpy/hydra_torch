@@ -9,3 +9,17 @@ tb_logs/
 .idea/
 .ruff_cache/
 .pytest_cache/
+.env
+mlruns/
+.dvc/cache/
+.dvc/tmp/
+.dvc/plans/
+.ipynb_checkpoints/
+
+*.py[cod]
+dist/
+build/
+*.egg-info/
+.dvc/cache
+
+/checkpoints

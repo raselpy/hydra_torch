@@ -1,0 +1,54 @@
+vars:
+  - params.yaml
+
+stages:
+  prepare_data:
+    cmd: python -m src.hydra_torch.scripts.prepare_data data_module=${data_module} hydra.run.dir=.
+    deps:
+      - src/hydra_torch/data_modules.py
+      - src/hydra_torch/scripts/prepare_data.py
+    outs:
+      - data/${data_module}
+
+  train:
+    cmd: >-
+      python -m src.hydra_torch.scripts.train
+      data_module=${data_module}
+      task=${task}
+      trainer=${trainer}
+      experiment_name=${experiment_name}
+      seed=${seed}
+      trainer.max_epochs=${max_epochs}
+      data_module.batch_size=${batch_size}
+      hydra.run.dir=.
+    deps:
+      - data/${data_module}
+      - src/hydra_torch
+      - configs
+    params:
+      - data_module
+      - task
+      - trainer
+      - experiment_name
+      - seed
+      - max_epochs
+      - batch_size
+    outs:
+      - checkpoints
+    metrics:
+      - metrics.json:
+          cache: false
+
+  evaluate:
+    cmd: >-
+      python -m src.hydra_torch.scripts.evaluate
+      +checkpoint_path=checkpoints/best.ckpt
+      data_module=${data_module}
+      hydra.run.dir=.
+    deps:
+      - checkpoints
+      - data/${data_module}
+      - src/hydra_torch/scripts/evaluate.py
+    metrics:
+      - eval_metrics.json:
+          cache: false

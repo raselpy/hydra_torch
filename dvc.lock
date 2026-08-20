@@ -1,0 +1,82 @@
+schema: '2.0'
+stages:
+  prepare_data:
+    cmd: python -m src.hydra_torch.scripts.prepare_data data_module=cifar10 
+      hydra.run.dir=.
+    deps:
+    - path: src/hydra_torch/data_modules.py
+      hash: md5
+      md5: 7bc994e312b1327dc2da983c2c8fa94f
+      size: 3344
+    - path: src/hydra_torch/scripts/prepare_data.py
+      hash: md5
+      md5: 872df6681c4f957f9db84a7730690217
+      size: 453
+    outs:
+    - path: data/cifar10
+      hash: md5
+      md5: e252d2c8ba36d1ab3e21a873ab62daa3.dir
+      size: 356712185
+      nfiles: 9
+  train:
+    cmd: python -m src.hydra_torch.scripts.train data_module=cifar10 
+      task=cifar10_classification trainer=gpu experiment_name=hydra_torch_runs 
+      seed=42 trainer.max_epochs=10 data_module.batch_size=64 hydra.run.dir=.
+    deps:
+    - path: configs
+      hash: md5
+      md5: 5cd6d34534e1254f654408e2fccce7e2.dir
+      size: 1699
+      nfiles: 13
+    - path: data/cifar10
+      hash: md5
+      md5: e252d2c8ba36d1ab3e21a873ab62daa3.dir
+      size: 356712185
+      nfiles: 9
+    - path: src/hydra_torch
+      hash: md5
+      md5: f1895a466d094b6d3ecd7f1768adb3e5.dir
+      size: 32534
+      nfiles: 22
+    params:
+      params.yaml:
+        batch_size: 64
+        data_module: cifar10
+        experiment_name: hydra_torch_runs
+        max_epochs: 10
+        seed: 42
+        task: cifar10_classification
+        trainer: gpu
+    outs:
+    - path: checkpoints
+      hash: md5
+      md5: b255ac1ffa1d3c5b587cbc2af0a5f535.dir
+      size: 188893178
+      nfiles: 2
+    - path: metrics.json
+      hash: md5
+      md5: 7063f6be58cadde5376ac4eece7b4854
+      size: 43
+  evaluate:
+    cmd: python -m src.hydra_torch.scripts.evaluate 
+      +checkpoint_path=checkpoints/best.ckpt data_module=cifar10 hydra.run.dir=.
+    deps:
+    - path: checkpoints
+      hash: md5
+      md5: b255ac1ffa1d3c5b587cbc2af0a5f535.dir
+      size: 188893178
+      nfiles: 2
+    - path: data/cifar10
+      hash: md5
+      md5: e252d2c8ba36d1ab3e21a873ab62daa3.dir
+      size: 356712185
+      nfiles: 9
+    - path: src/hydra_torch/scripts/evaluate.py
+      hash: md5
+      md5: 9cd979b3f82bd19f3d06c4fbb77d1ded
+      size: 866
+    outs:
+    - path: eval_metrics.json
+      hash: md5
+      md5: 7063f6be58cadde5376ac4eece7b4854
+      size: 43
