@@ -7,6 +7,7 @@ from .task_schema import MNISTTaskSchema, CIFAR10TaskSchema
 from .model_schema import ModelConfig
 from .optimizer_schema import OptimizerConfig
 from .loss_function_schema import LossFunctionConfig
+from .transform_schema import MNISTTransformSchema  
 
 
 def setup_config() -> None:
