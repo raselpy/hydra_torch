@@ -1,3 +1,4 @@
+import os
 import json
 import hydra
 from hydra.utils import instantiate
@@ -5,8 +6,11 @@ from omegaconf import DictConfig
 
 from src.config_schema import setup_config  # noqa: F401
 
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_CONFIG_PATH = os.path.join(_THIS_DIR, "..", "..", "..", "configs")
 
-@hydra.main(version_base=None, config_path="../../../configs", config_name="config")
+
+@hydra.main(version_base=None, config_path=_CONFIG_PATH, config_name="config")
 def main(cfg: DictConfig) -> None:
     if "checkpoint_path" not in cfg:
         raise ValueError("Pass +checkpoint_path=<path>, e.g. +checkpoint_path=checkpoints/best.ckpt")

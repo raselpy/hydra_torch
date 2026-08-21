@@ -1,59 +1,50 @@
-import logging
+import os
 import json
+import logging
 import hydra
 from omegaconf import DictConfig, OmegaConf
 from hydra.utils import instantiate
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 
-# Load-bearing side-effecting import — registers Hydra ConfigStore schemas.
+# Load-bearing side-effecting import — see PLANNER.md section 1a.
+# Do not remove: this registers cpu/gpu_trainer_schema, loss_function_schema,
+# mlflow_logger_schema, etc. into Hydra's ConfigStore.
 from src.config_schema import setup_config  # noqa: F401
 
 log = logging.getLogger(__name__)
 
+# Absolute path anchored to this file's own location. A relative config_path
+# resolves against the __main__ script, NOT this file, when this
+# hydra.main-decorated function is imported and called from elsewhere
+# (which is exactly what main.py does). See PLANNER.md section 1d.
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_CONFIG_PATH = os.path.join(_THIS_DIR, "..", "..", "..", "configs")
 
-class EpochLogger(pl.Callback):
-    """Logs a permanent line per epoch and saves the resolved Hydra config as an MLflow artifact."""
 
-    def __init__(self, cfg: DictConfig = None):
-        self.cfg = cfg
+class EpochLogger(Callback):
+    """Permanent one-line-per-epoch console log (progress bar overwrites
+    itself in place and doesn't survive in scrollback)."""
 
-    def on_fit_start(self, trainer, pl_module):
-        if self.cfg and trainer.logger:
-            for logger in trainer.loggers:
-                if hasattr(logger, "experiment"):
-                    logger.experiment.log_text(
-                        logger.run_id,
-                        OmegaConf.to_yaml(self.cfg),
-                        "hydra_config.yaml",
-                    )
-                    logger.experiment.set_tag(logger.run_id, "experiment_name", self.cfg.experiment_name)
-                    logger.experiment.set_tag(logger.run_id, "seed", self.cfg.seed)
-
-    # NOTE: on_epoch_end was removed in PyTorch Lightning 2.0 — this must be
-    # on_train_epoch_end, or the hook silently never fires.
     def on_train_epoch_end(self, trainer, pl_module):
         metrics = trainer.callback_metrics
-        train_loss = metrics.get("train_loss_epoch") or metrics.get("train_loss")
-        val_acc = metrics.get("validation_accuracy") or metrics.get("val_accuracy")
         log.info(
-            f"Epoch {trainer.current_epoch} | "
-            f"Loss: {train_loss if train_loss is None else float(train_loss):.4f} | "
-            f"Val Acc: {val_acc if val_acc is None else float(val_acc):.4f}"
+            f"Epoch {trainer.current_epoch}: "
+            f"train_loss={metrics.get('train_loss_epoch', 'n/a')}, "
+            f"train_acc={metrics.get('train_accuracy', 'n/a')}, "
+            f"val_acc={metrics.get('validation_accuracy', 'n/a')}"
         )
 
 
-@hydra.main(version_base=None, config_path="../../../configs", config_name="config")
+@hydra.main(version_base=None, config_path=_CONFIG_PATH, config_name="config")
 def main(cfg: DictConfig) -> None:
     if "seed" in cfg:
         pl.seed_everything(cfg.seed, workers=True)
 
     data_module = instantiate(cfg.data_module)
     task = instantiate(cfg.task)
-    logger = instantiate(cfg.logger) if "logger" in cfg else None
+    mlflow_logger = instantiate(cfg.logger)
 
-    # Fixed, predictable checkpoint path so DVC's train stage has a stable
-    # outs: directory to track.
     checkpoint_callback = ModelCheckpoint(
         dirpath="checkpoints",
         filename="best",
@@ -64,9 +55,14 @@ def main(cfg: DictConfig) -> None:
 
     trainer = instantiate(
         cfg.trainer,
-        logger=logger,
-        callbacks=[EpochLogger(cfg=cfg), checkpoint_callback],
+        callbacks=[EpochLogger(), checkpoint_callback],
+        logger=mlflow_logger,
     )
+
+    resolved_cfg = OmegaConf.to_yaml(cfg, resolve=True)
+    mlflow_logger.experiment.log_text(mlflow_logger.run_id, resolved_cfg, "resolved_config.yaml")
+    mlflow_logger.experiment.set_tag(mlflow_logger.run_id, "experiment_name", cfg.experiment_name)
+    mlflow_logger.experiment.set_tag(mlflow_logger.run_id, "seed", cfg.seed)
 
     log.info("Starting training loop...")
     trainer.fit(task, datamodule=data_module)
