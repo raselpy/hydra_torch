@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 import logging
 import hydra
@@ -38,12 +39,35 @@ class EpochLogger(Callback):
 
 @hydra.main(version_base=None, config_path=_CONFIG_PATH, config_name="config")
 def main(cfg: DictConfig) -> None:
+    # 1. Reproducibility
     if "seed" in cfg:
         pl.seed_everything(cfg.seed, workers=True)
 
+    # 2. Instantiate Lightning components + the MLflow logger
     data_module = instantiate(cfg.data_module)
     task = instantiate(cfg.task)
     mlflow_logger = instantiate(cfg.logger)
+
+    # Start every run with a clean checkpoints/ dir. Without this,
+    # ModelCheckpoint(filename="best") never overwrites an existing file —
+    # Lightning auto-versions instead (best.ckpt, best-v1.ckpt, best-v2.ckpt,
+    # ...), which silently breaks dvc.yaml's evaluate stage: it always
+    # points at the literal "checkpoints/best.ckpt", so it would keep
+    # testing the FIRST-ever run's checkpoint forever, not the latest one.
+    #
+    # NOTE: clear only the CONTENTS of checkpoints/, not the directory
+    # itself. In docker-compose, checkpoints/ is a bind mount — Linux
+    # refuses to rmdir an active mount point (OSError: Device or resource
+    # busy), even from inside the container. Deleting files/subdirs inside
+    # it is fine; removing the mount-point directory itself is not.
+    checkpoint_dir = "checkpoints"
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    for entry in os.listdir(checkpoint_dir):
+        entry_path = os.path.join(checkpoint_dir, entry)
+        if os.path.isfile(entry_path) or os.path.islink(entry_path):
+            os.remove(entry_path)
+        elif os.path.isdir(entry_path):
+            shutil.rmtree(entry_path)
 
     checkpoint_callback = ModelCheckpoint(
         dirpath="checkpoints",
@@ -59,17 +83,24 @@ def main(cfg: DictConfig) -> None:
         logger=mlflow_logger,
     )
 
+    # 3. Log the fully-resolved config as an MLflow artifact, plus a couple
+    # of top-level tags, so every run is reproducible from its own tracking
+    # record and filterable in the UI.
     resolved_cfg = OmegaConf.to_yaml(cfg, resolve=True)
     mlflow_logger.experiment.log_text(mlflow_logger.run_id, resolved_cfg, "resolved_config.yaml")
     mlflow_logger.experiment.set_tag(mlflow_logger.run_id, "experiment_name", cfg.experiment_name)
     mlflow_logger.experiment.set_tag(mlflow_logger.run_id, "seed", cfg.seed)
 
+    # 4. Train
     log.info("Starting training loop...")
     trainer.fit(task, datamodule=data_module)
 
+    # 5. Test the BEST checkpoint (by validation_accuracy), not just the
+    # final-epoch in-memory weights.
     log.info("Starting testing loop...")
     test_results = trainer.test(task, datamodule=data_module, ckpt_path="best")
 
+    # 6. Write metrics.json for DVC's `metrics:` tracking in the train stage.
     with open("metrics.json", "w") as f:
         json.dump(test_results[0], f, indent=2)
 

@@ -2,6 +2,13 @@ FROM pytorch/pytorch:2.8.0-cuda12.9-cudnn9-runtime
 
 WORKDIR /app
 
+# Force stdout/stderr to flush immediately instead of block-buffering.
+# Without this, logs (epoch progress, etc.) can appear to "hang" for long
+# stretches when running under docker compose (non-TTY), then arrive all
+# at once in a delayed burst — training is actually running fine the whole
+# time, it's purely a buffering display issue.
+ENV PYTHONUNBUFFERED=1
+
 # git is required by DVC's scmrepo backend, even for local-only remotes
 RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
