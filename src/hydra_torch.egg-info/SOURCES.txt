@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 src/config_schema/__init__.py
 src/config_schema/config_schema.py
@@ -26,3 +27,5 @@ src/hydra_torch/scripts/__init__.py
 src/hydra_torch/scripts/evaluate.py
 src/hydra_torch/scripts/prepare_data.py
 src/hydra_torch/scripts/train.py
+tests/test_config_schema.py
+tests/test_models.py
