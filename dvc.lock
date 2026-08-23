@@ -10,8 +10,8 @@ stages:
       size: 3344
     - path: src/hydra_torch/scripts/prepare_data.py
       hash: md5
-      md5: 872df6681c4f957f9db84a7730690217
-      size: 453
+      md5: ddbbc5f3a5034e33e961d85fe3796eba
+      size: 585
     outs:
     - path: data/cifar10
       hash: md5
@@ -35,9 +35,9 @@ stages:
       nfiles: 9
     - path: src/hydra_torch
       hash: md5
-      md5: f1895a466d094b6d3ecd7f1768adb3e5.dir
-      size: 32534
-      nfiles: 22
+      md5: 65344bb69dcab81a32059d8eb69ffcaf.dir
+      size: 37912
+      nfiles: 23
     params:
       params.yaml:
         batch_size: 64
@@ -50,20 +50,20 @@ stages:
     outs:
     - path: checkpoints
       hash: md5
-      md5: b255ac1ffa1d3c5b587cbc2af0a5f535.dir
+      md5: 4fbb6fbf9d11f3ad98c43bfe61e6b4f7.dir
       size: 188893178
       nfiles: 2
     - path: metrics.json
       hash: md5
-      md5: 7063f6be58cadde5376ac4eece7b4854
-      size: 43
+      md5: 3debe9f9c4ac99ea40fd7e7d1d15adc8
+      size: 44
   evaluate:
     cmd: python -m src.hydra_torch.scripts.evaluate 
       +checkpoint_path=checkpoints/best.ckpt data_module=cifar10 hydra.run.dir=.
     deps:
     - path: checkpoints
       hash: md5
-      md5: b255ac1ffa1d3c5b587cbc2af0a5f535.dir
+      md5: 4fbb6fbf9d11f3ad98c43bfe61e6b4f7.dir
       size: 188893178
       nfiles: 2
     - path: data/cifar10
@@ -73,10 +73,10 @@ stages:
       nfiles: 9
     - path: src/hydra_torch/scripts/evaluate.py
       hash: md5
-      md5: 9cd979b3f82bd19f3d06c4fbb77d1ded
-      size: 866
+      md5: cfabb5f03a9d343d15db6906c4ef176b
+      size: 998
     outs:
     - path: eval_metrics.json
       hash: md5
-      md5: 7063f6be58cadde5376ac4eece7b4854
-      size: 43
+      md5: 3debe9f9c4ac99ea40fd7e7d1d15adc8
+      size: 44
