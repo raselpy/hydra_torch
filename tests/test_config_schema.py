@@ -1,16 +1,15 @@
 # tests/test_config_schema.py
+import os
+
 import pytest
 from hydra import compose, initialize_config_dir
 from hydra.utils import instantiate
-import os
 
 # Load-bearing side-effecting import — registers Hydra ConfigStore schemas.
 # Without this, hydra.compose() below cannot resolve any *_schema default.
 from src.config_schema import setup_config  # noqa: F401
 
-_CONFIG_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "configs"
-)
+_CONFIG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "configs")
 
 
 @pytest.mark.parametrize(

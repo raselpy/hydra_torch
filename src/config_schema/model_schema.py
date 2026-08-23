@@ -1,4 +1,5 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
+
 from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING
 from pydantic.dataclasses import dataclass
@@ -7,9 +8,9 @@ from pydantic.dataclasses import dataclass
 @dataclass
 class ModelConfig:
     _target_: str = MISSING
-    backbone: Optional[Dict[str, Any]] = None
-    adapter: Optional[Dict[str, Any]] = None
-    head: Optional[Dict[str, Any]] = None
+    backbone: Optional[dict[str, Any]] = None
+    adapter: Optional[dict[str, Any]] = None
+    head: Optional[dict[str, Any]] = None
 
 
 def setup_config() -> None:

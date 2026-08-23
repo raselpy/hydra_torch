@@ -1,16 +1,18 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
+
 from hydra.core.config_store import ConfigStore
-from pydantic.dataclasses import dataclass
 from omegaconf import MISSING
-from config_schema import model_schema, optimizer_schema, loss_function_schema
+from pydantic.dataclasses import dataclass
+
+from config_schema import loss_function_schema, model_schema, optimizer_schema
 
 
 @dataclass
 class TaskConfig:
     _target_: str = MISSING
-    model: Optional[Dict[str, Any]] = None
-    optimizer: Optional[Dict[str, Any]] = None
-    loss_function: Optional[Dict[str, Any]] = None
+    model: Optional[dict[str, Any]] = None
+    optimizer: Optional[dict[str, Any]] = None
+    loss_function: Optional[dict[str, Any]] = None
 
 
 @dataclass

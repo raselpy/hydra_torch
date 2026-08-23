@@ -2,7 +2,7 @@
 import torch
 from torch.utils.data import Dataset
 
-from hydra_torch.data_modules import MNISTDataModule, CIFAR10DataModule
+from hydra_torch.data_modules import CIFAR10DataModule, MNISTDataModule
 
 
 class _FakeImageDataset(Dataset):

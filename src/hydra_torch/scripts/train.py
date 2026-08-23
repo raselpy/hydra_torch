@@ -1,11 +1,12 @@
-import os
-import shutil
 import json
 import logging
+import os
+import shutil
+
 import hydra
-from omegaconf import DictConfig, OmegaConf
-from hydra.utils import instantiate
 import pytorch_lightning as pl
+from hydra.utils import instantiate
+from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 
 # Load-bearing side-effecting import — see PLANNER.md section 1a.

@@ -1,4 +1,5 @@
-from typing import Callable, Iterator
+from collections.abc import Iterator
+from typing import Callable
 
 import pytorch_lightning as pl
 from torch import Tensor, nn, optim

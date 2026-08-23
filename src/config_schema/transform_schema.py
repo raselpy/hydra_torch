@@ -1,7 +1,8 @@
 # src/config_schema/transform_schema.py
-from pydantic.dataclasses import dataclass
-from typing import List, Any
+from typing import Any
+
 from omegaconf import MISSING
+from pydantic.dataclasses import dataclass
 
 
 @dataclass
@@ -12,4 +13,4 @@ class TransformConfig:
 @dataclass
 class MNISTTransformSchema(TransformConfig):
     _target_: str = "torchvision.transforms.Compose"
-    transforms: List[Any] = MISSING
+    transforms: list[Any] = MISSING

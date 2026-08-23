@@ -9,6 +9,7 @@ in each script. This test just verifies that path still resolves to a
 real configs/ directory, without needing to invoke the full hydra.main
 decorator machinery.
 """
+
 import importlib
 import os
 

@@ -1,4 +1,4 @@
-from torch import Tensor, nn, flatten
+from torch import Tensor, flatten, nn
 
 
 class LinearAdapter(nn.Module):

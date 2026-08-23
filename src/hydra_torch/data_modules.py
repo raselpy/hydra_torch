@@ -1,12 +1,18 @@
 import pytorch_lightning as pl
-from torch.utils.data import random_split, DataLoader
+from torch.utils.data import DataLoader, random_split
+from torchvision.datasets import CIFAR10, MNIST
 from torchvision.transforms import transforms
-from torchvision.datasets import MNIST, CIFAR10
 
 
 class MNISTDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size: int, num_workers: int = 0, pin_memory: bool = False,
-                 drop_last: bool = False, data_dir: str = "./"):
+    def __init__(
+        self,
+        batch_size: int,
+        num_workers: int = 0,
+        pin_memory: bool = False,
+        drop_last: bool = False,
+        data_dir: str = "./",
+    ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
@@ -27,8 +33,14 @@ class MNISTDataModule(pl.LightningDataModule):
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def _loader(self, dataset, shuffle):
-        return DataLoader(dataset, batch_size=self.batch_size, num_workers=self.num_workers,
-                           pin_memory=self.pin_memory, drop_last=self.drop_last, shuffle=shuffle)
+        return DataLoader(
+            dataset,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory,
+            drop_last=self.drop_last,
+            shuffle=shuffle,
+        )
 
     def train_dataloader(self):
         return self._loader(self.mnist_train, True)
@@ -41,8 +53,14 @@ class MNISTDataModule(pl.LightningDataModule):
 
 
 class CIFAR10DataModule(pl.LightningDataModule):
-    def __init__(self, batch_size: int, num_workers: int = 0, pin_memory: bool = False,
-                 drop_last: bool = False, data_dir: str = "./"):
+    def __init__(
+        self,
+        batch_size: int,
+        num_workers: int = 0,
+        pin_memory: bool = False,
+        drop_last: bool = False,
+        data_dir: str = "./",
+    ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
@@ -63,8 +81,14 @@ class CIFAR10DataModule(pl.LightningDataModule):
             self.cifar10_test = CIFAR10(self.data_dir, train=False, transform=self.transform)
 
     def _loader(self, dataset, shuffle):
-        return DataLoader(dataset, batch_size=self.batch_size, num_workers=self.num_workers,
-                           pin_memory=self.pin_memory, drop_last=self.drop_last, shuffle=shuffle)
+        return DataLoader(
+            dataset,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory,
+            drop_last=self.drop_last,
+            shuffle=shuffle,
+        )
 
     def train_dataloader(self):
         return self._loader(self.cifar10_train, True)
