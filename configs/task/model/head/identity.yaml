@@ -1,0 +1,2 @@
+defaults: [head_schema]
+_target_: hydra_torch.heads.IdentityHead

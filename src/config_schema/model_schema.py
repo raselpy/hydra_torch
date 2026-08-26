@@ -4,6 +4,8 @@ from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING
 from pydantic.dataclasses import dataclass
 
+from config_schema import adapter_schema, backbone_schema, head_schema
+
 
 @dataclass
 class ModelConfig:
@@ -16,3 +18,6 @@ class ModelConfig:
 def setup_config() -> None:
     cs = ConfigStore.instance()
     cs.store(group="task/model", name="model_schema", node=ModelConfig)
+    backbone_schema.setup_config()
+    adapter_schema.setup_config()
+    head_schema.setup_config()

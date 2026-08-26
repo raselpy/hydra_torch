@@ -1,0 +1,3 @@
+defaults: [backbone_schema]
+_target_: hydra_torch.backbones.ResNet50
+pretrained: true
