@@ -6,6 +6,7 @@ outputs/
 multirun/
 checkpoints/
 tb_logs/
+dvc_storage/
 .idea/
 .ruff_cache/
 .pytest_cache/
