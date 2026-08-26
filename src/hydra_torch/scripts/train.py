@@ -4,6 +4,8 @@ import os
 import shutil
 
 import hydra
+import mlflow
+import mlflow.pytorch
 import pytorch_lightning as pl
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
@@ -104,6 +106,51 @@ def main(cfg: DictConfig) -> None:
     # 6. Write metrics.json for DVC's `metrics:` tracking in the train stage.
     with open("metrics.json", "w") as f:
         json.dump(test_results[0], f, indent=2)
+
+    # 7. Register the model to MLflow's Model Registry, so serve.py can load
+    # it by a stable alias instead of a hardcoded checkpoint path.
+    #
+    # Model Registry REQUIRES a database-backed tracking store (SQLite/
+    # Postgres/MySQL) — it does NOT work against a plain file:// store.
+    # Bare-metal runs (MLFLOW_TRACKING_URI unset) default to file:./mlruns
+    # and skip this step entirely rather than crash; only the compose
+    # SQLite-backed mlflow-server (MLFLOW_TRACKING_URI=http://mlflow-server:5000)
+    # actually supports it. See PLANNER.md section 1j.
+    #
+    # Design simplification, stated explicitly rather than hidden: every
+    # successful registration here sets the "champion" alias unconditionally
+    # — a real production setup would gate promotion behind validation
+    # checks or human review, not auto-promote every run. Out of scope here.
+    tracking_uri = cfg.logger.tracking_uri
+    if tracking_uri.startswith("file:"):
+        log.warning(
+            f"Skipping model registration: tracking_uri={tracking_uri} is a "
+            f"file-based store, which does not support MLflow Model Registry. "
+            f"Run via `docker compose up train` (SQLite-backed mlflow-server) "
+            f"to register a model."
+        )
+    else:
+        try:
+            mlflow.set_tracking_uri(tracking_uri)
+            registered_model_name = f"hydra_torch_{type(task.model).__name__}"
+            with mlflow.start_run(run_id=mlflow_logger.run_id):
+                model_info = mlflow.pytorch.log_model(
+                    task.model,
+                    artifact_path="model",
+                    registered_model_name=registered_model_name,
+                )
+            client = mlflow.tracking.MlflowClient()
+            client.set_registered_model_alias(
+                name=registered_model_name,
+                alias="champion",
+                version=model_info.registered_model_version,
+            )
+            log.info(
+                f"Registered '{registered_model_name}' version "
+                f"{model_info.registered_model_version} and set alias 'champion'"
+            )
+        except Exception:
+            log.warning("Model registration failed; training results are unaffected.", exc_info=True)
 
 
 if __name__ == "__main__":

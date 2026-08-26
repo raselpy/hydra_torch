@@ -3,23 +3,17 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
+import mlflow
+import mlflow.pytorch
 import torch
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from hydra import compose, initialize_config_dir
-from hydra.utils import instantiate
 from PIL import Image
 from pydantic import BaseModel
 
-# Load-bearing side-effecting import — registers Hydra ConfigStore schemas.
-from src.config_schema import setup_config  # noqa: F401
 from src.hydra_torch.data_modules import CIFAR10DataModule
 
+logging.basicConfig(level=logging.INFO, force=True)
 log = logging.getLogger(__name__)
-
-# This file lives at src/hydra_torch/serve.py — two levels under the repo
-# root, unlike scripts/*.py which are three levels under it.
-_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-_CONFIG_PATH = os.path.join(_THIS_DIR, "..", "..", "configs")
 
 CIFAR10_CLASSES = [
     "airplane",
@@ -34,7 +28,8 @@ CIFAR10_CLASSES = [
     "truck",
 ]
 
-CHECKPOINT_PATH = os.environ.get("CHECKPOINT_PATH", "checkpoints/best.ckpt")
+REGISTERED_MODEL_NAME = os.environ.get("REGISTERED_MODEL_NAME", "hydra_torch_CIFAR10Model")
+MODEL_ALIAS = os.environ.get("MODEL_ALIAS", "champion")
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 _model = None
@@ -44,26 +39,23 @@ _transform = None
 def _load_model():
     global _model, _transform
 
-    if not os.path.isfile(CHECKPOINT_PATH):
+    # Model Registry loading requires a database-backed MLflow tracking
+    # server (e.g. http://mlflow-server:5000 via docker-compose) — a
+    # file:// store does not support the registry. See PLANNER.md
+    # section 1j.
+    tracking_uri = os.environ.get("MLFLOW_TRACKING_URI")
+    if not tracking_uri:
         raise RuntimeError(
-            f"Checkpoint not found at {CHECKPOINT_PATH}. Set the CHECKPOINT_PATH "
-            f"env var, or train a model first (see README Quickstart)."
+            "MLFLOW_TRACKING_URI is not set. Model Registry loading requires "
+            "a database-backed MLflow tracking server — a file:// store "
+            "does not support it. Run via docker-compose, which sets this "
+            "automatically."
         )
+    mlflow.set_tracking_uri(tracking_uri)
 
-    with initialize_config_dir(config_dir=_CONFIG_PATH, version_base=None):
-        cfg = compose(config_name="config", overrides=["task=cifar10_classification", "data_module=cifar10"])
-        model = instantiate(cfg.task.model)
-
-    # weights_only=False is required: PyTorch Lightning checkpoints contain
-    # non-tensor objects (optimizer states, callback states, hyperparameters),
-    # not just raw tensors. Since PyTorch 2.6, torch.load defaults to
-    # weights_only=True, which cannot unpickle those and would raise
-    # UnpicklingError here. Safe to disable since this loads our own
-    # checkpoint, not an untrusted third-party file.
-    checkpoint = torch.load(CHECKPOINT_PATH, map_location=DEVICE, weights_only=False)
-    state_dict = checkpoint["state_dict"]
-    model_state_dict = {k[len("model.") :]: v for k, v in state_dict.items() if k.startswith("model.")}
-    model.load_state_dict(model_state_dict)
+    model_uri = f"models:/{REGISTERED_MODEL_NAME}@{MODEL_ALIAS}"
+    log.info(f"Loading model from registry: {model_uri}")
+    model = mlflow.pytorch.load_model(model_uri, map_location=DEVICE)
     model.eval()
     model.to(DEVICE)
 
@@ -72,14 +64,12 @@ def _load_model():
     # Note: this transform's normalization constants are actually MNIST's
     # stats, copy-pasted onto CIFAR10DataModule (a real, separate bug — see
     # PLANNER.md). The model was trained with this exact (wrong) normalization
-    # baked in, so serving must reuse it as-is rather than "fixing" it here —
-    # using different stats at inference than at training would make
-    # predictions worse, not better.
+    # baked in, so serving must reuse it as-is rather than "fixing" it here.
     transform = CIFAR10DataModule(batch_size=1).transform
 
     _model = model
     _transform = transform
-    log.info(f"Model loaded from {CHECKPOINT_PATH} on {DEVICE}")
+    log.info(f"Model loaded from {model_uri} on {DEVICE}")
 
 
 @asynccontextmanager

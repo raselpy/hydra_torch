@@ -41,18 +41,37 @@ services:
               capabilities: [gpu]
     command: ["trainer=gpu"]
 
+  register:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      mlflow-server:
+        condition: service_healthy
+    entrypoint: ["python", "-m", "src.hydra_torch.register_model"]
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - REGISTERED_MODEL_NAME=hydra_torch_CIFAR10Model
+      - MODEL_ALIAS=champion
+      - CHECKPOINT_PATH=checkpoints/best.ckpt
+    volumes:
+      - ./checkpoints:/app/checkpoints:ro
+
   serve:
     build:
       context: .
       dockerfile: Dockerfile
     entrypoint: ["uvicorn"]
     command: ["src.hydra_torch.serve:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      mlflow-server:
+        condition: service_healthy
     ports:
       - "8000:8000"
-    volumes:
-      - ./checkpoints:/app/checkpoints:ro
     environment:
-      - CHECKPOINT_PATH=checkpoints/best.ckpt
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - REGISTERED_MODEL_NAME=hydra_torch_CIFAR10Model
+      - MODEL_ALIAS=champion
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s

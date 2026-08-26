@@ -1,21 +1,14 @@
 # tests/test_serve.py
-"""These tests deliberately avoid triggering the app's lifespan (which loads
-a real checkpoint via _load_model()) — no trained checkpoint exists in CI,
-since checkpoints/ is gitignored. Full end-to-end /predict testing against a
-real checkpoint is a known gap, left for manual verification (see README) —
-noted here explicitly rather than silently claiming more coverage than
-actually exists.
+"""These tests deliberately avoid triggering the app's lifespan (which
+requires a real, reachable MLflow registry server) — no such server exists
+in CI. Full end-to-end /predict testing against a real registered model is
+a known gap, left for manual verification (see README) — noted here
+explicitly rather than silently claiming more coverage than actually exists.
 """
 
-import os
+import pytest
 
-from hydra_torch.serve import _CONFIG_PATH, CIFAR10_CLASSES
-
-
-def test_config_path_resolves():
-    resolved = os.path.abspath(_CONFIG_PATH)
-    assert os.path.isdir(resolved)
-    assert os.path.isfile(os.path.join(resolved, "config.yaml"))
+from hydra_torch.serve import CIFAR10_CLASSES, MODEL_ALIAS, REGISTERED_MODEL_NAME, _load_model
 
 
 def test_cifar10_classes_match_canonical_order():
@@ -35,3 +28,14 @@ def test_cifar10_classes_match_canonical_order():
         "truck",
     ]
     assert len(CIFAR10_CLASSES) == 10
+
+
+def test_default_registry_settings():
+    assert REGISTERED_MODEL_NAME == "hydra_torch_CIFAR10Model"
+    assert MODEL_ALIAS == "champion"
+
+
+def test_load_model_raises_clear_error_without_tracking_uri(monkeypatch):
+    monkeypatch.delenv("MLFLOW_TRACKING_URI", raising=False)
+    with pytest.raises(RuntimeError, match="MLFLOW_TRACKING_URI"):
+        _load_model()
