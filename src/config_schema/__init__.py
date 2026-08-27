@@ -1,14 +1,14 @@
 from hydra.core.config_store import ConfigStore
 
-from .adapter_schema import AdapterConfig
-from .backbone_schema import BackboneConfig
 from .data_module_schema import CIFAR10DataModuleSchema, MNISTDataModuleSchema
-from .head_schema import HeadConfig
 from .logger_schema import MLFlowLoggerSchema
-from .loss_function_schema import LossFunctionConfig
-from .model_schema import ModelConfig
-from .optimizer_schema import OptimizerConfig
-from .task_schema import CIFAR10TaskSchema, MNISTTaskSchema
+from .task.loss_function_schema import LossFunctionConfig
+from .task.model.adapter_schema import AdapterConfig
+from .task.model.backbone_schema import BackboneConfig
+from .task.model.head_schema import HeadConfig
+from .task.model.model_schema import ModelConfig
+from .task.optimizer_schema import OptimizerConfig
+from .task.task_schema import CIFAR10TaskSchema, MNISTTaskSchema
 from .trainer_schema import CPUTrainerSchema, GPUTrainerSchema
 from .transform_schema import MNISTTransformSchema as MNISTTransformSchema
 

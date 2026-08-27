@@ -4,7 +4,8 @@ from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING
 from pydantic.dataclasses import dataclass
 
-from config_schema import loss_function_schema, model_schema, optimizer_schema
+from config_schema.task import loss_function_schema, optimizer_schema
+from config_schema.task.model import model_schema
 
 
 @dataclass
