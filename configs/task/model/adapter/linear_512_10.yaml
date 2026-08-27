@@ -1,4 +1,4 @@
 defaults: [adapter_schema]
-_target_: hydra_torch.adapters.LinearAdapter
+_target_: hydra_torch.models.adapters.LinearAdapter
 in_features: 512
 out_features: 10

@@ -2,7 +2,7 @@
 import torch
 from torch.utils.data import Dataset
 
-from hydra_torch.data_modules import CIFAR10DataModule, MNISTDataModule
+from hydra_torch.data.data_modules import CIFAR10DataModule, MNISTDataModule
 
 
 class _FakeImageDataset(Dataset):
@@ -30,7 +30,7 @@ def test_mnist_data_module_batch_shape(monkeypatch):
         n = 60000 if train else 10000
         return _FakeImageDataset(n=n, channels=1, size=28)
 
-    monkeypatch.setattr("hydra_torch.data_modules.MNIST", fake_mnist)
+    monkeypatch.setattr("hydra_torch.data.data_modules.MNIST", fake_mnist)
 
     dm = MNISTDataModule(batch_size=4, data_dir="/tmp/fake_mnist")
     dm.setup("fit")
@@ -50,7 +50,7 @@ def test_cifar10_data_module_batch_shape(monkeypatch):
         n = 500 if train else 100  # fractional split, any size works
         return _FakeImageDataset(n=n, channels=3, size=32)
 
-    monkeypatch.setattr("hydra_torch.data_modules.CIFAR10", fake_cifar10)
+    monkeypatch.setattr("hydra_torch.data.data_modules.CIFAR10", fake_cifar10)
 
     dm = CIFAR10DataModule(batch_size=4, data_dir="/tmp/fake_cifar10")
     dm.setup("fit")

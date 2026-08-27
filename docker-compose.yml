@@ -48,7 +48,7 @@ services:
     depends_on:
       mlflow-server:
         condition: service_healthy
-    entrypoint: ["python", "-m", "src.hydra_torch.register_model"]
+    entrypoint: ["python", "-m", "src.hydra_torch.serving.register_model"]
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow-server:5000
       - REGISTERED_MODEL_NAME=hydra_torch_CIFAR10Model
@@ -62,7 +62,7 @@ services:
       context: .
       dockerfile: Dockerfile
     entrypoint: ["uvicorn"]
-    command: ["src.hydra_torch.serve:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["src.hydra_torch.serving.serve:app", "--host", "0.0.0.0", "--port", "8000"]
     depends_on:
       mlflow-server:
         condition: service_healthy

@@ -8,7 +8,7 @@ explicitly rather than silently claiming more coverage than actually exists.
 
 import pytest
 
-from hydra_torch.serve import CIFAR10_CLASSES, MODEL_ALIAS, REGISTERED_MODEL_NAME, _load_model
+from hydra_torch.serving.serve import CIFAR10_CLASSES, MODEL_ALIAS, REGISTERED_MODEL_NAME, _load_model
 
 
 def test_cifar10_classes_match_canonical_order():

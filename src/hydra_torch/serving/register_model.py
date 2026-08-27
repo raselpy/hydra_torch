@@ -6,7 +6,7 @@ does not run automatically as part of `main.py` / `scripts/train.py`.
 
 Usage (host machine, with `docker compose up -d mlflow-server` running):
     MLFLOW_TRACKING_URI=http://localhost:5000 \
-        python -m src.hydra_torch.register_model --checkpoint-path checkpoints/best.ckpt
+        python -m src.hydra_torch.serving.register_model --checkpoint-path checkpoints/best.ckpt
 
 Usage (inside the `register` compose service — MLFLOW_TRACKING_URI is set
 there to http://mlflow-server:5000 automatically):
@@ -31,10 +31,10 @@ from src.config_schema import setup_config  # noqa: F401
 
 log = logging.getLogger(__name__)
 
-# This file lives at src/hydra_torch/register_model.py — same depth as
-# serve.py, two levels under the repo root.
+# This file lives at src/hydra_torch/serving/register_model.py — three levels
+# under the repo root, same depth as scripts/*.py.
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-_CONFIG_PATH = os.path.join(_THIS_DIR, "..", "..", "configs")
+_CONFIG_PATH = os.path.join(_THIS_DIR, "..", "..", "..", "configs")
 
 # Must match serve.py's REGISTERED_MODEL_NAME / MODEL_ALIAS env var defaults
 # exactly — these two files coordinate through the same registry entries.

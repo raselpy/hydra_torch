@@ -2,10 +2,10 @@
 import pytest
 import torch
 
-from hydra_torch.adapters import LinearAdapter
-from hydra_torch.backbones import ResNet18, ResNet50
-from hydra_torch.heads import IdentityHead
-from hydra_torch.models import CIFAR10Model, SimpleModel
+from hydra_torch.models.adapters import LinearAdapter
+from hydra_torch.models.backbones import ResNet18, ResNet50
+from hydra_torch.models.heads import IdentityHead
+from hydra_torch.models.model import CIFAR10Model, SimpleModel
 
 
 def test_cifar10_model_forward_shape():

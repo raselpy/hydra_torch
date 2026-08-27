@@ -10,7 +10,7 @@ class DataModuleConfig:
 
 @dataclass
 class MNISTDataModuleSchema(DataModuleConfig):
-    _target_: str = "hydra_torch.data_modules.MNISTDataModule"
+    _target_: str = "hydra_torch.data.data_modules.MNISTDataModule"
     batch_size: int = MISSING
     num_workers: int = MISSING
     pin_memory: bool = True
@@ -20,7 +20,7 @@ class MNISTDataModuleSchema(DataModuleConfig):
 
 @dataclass
 class CIFAR10DataModuleSchema(DataModuleConfig):
-    _target_: str = "hydra_torch.data_modules.CIFAR10DataModule"
+    _target_: str = "hydra_torch.data.data_modules.CIFAR10DataModule"
     batch_size: int = MISSING
     num_workers: int = MISSING
     pin_memory: bool = True

@@ -3,4 +3,4 @@ defaults:
   - backbone: resnet50
   - adapter: linear_2048_10
   - head: identity
-_target_: hydra_torch.models.CIFAR10Model
+_target_: hydra_torch.models.model.CIFAR10Model

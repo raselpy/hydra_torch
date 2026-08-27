@@ -10,7 +10,7 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from PIL import Image
 from pydantic import BaseModel
 
-from src.hydra_torch.data_modules import CIFAR10DataModule
+from src.hydra_torch.data.data_modules import CIFAR10DataModule
 
 logging.basicConfig(level=logging.INFO, force=True)
 log = logging.getLogger(__name__)
