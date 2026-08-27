@@ -1,6 +1,7 @@
 from hydra.core.config_store import ConfigStore
 
 from .data_module.data_module_schema import CIFAR10DataModuleSchema, MNISTDataModuleSchema
+from .data_module.transform_schema import MNISTTransformSchema as MNISTTransformSchema
 from .logger.logger_schema import MLFlowLoggerSchema
 from .task.loss_function_schema import LossFunctionConfig
 from .task.model.adapter_schema import AdapterConfig
@@ -10,7 +11,6 @@ from .task.model.model_schema import ModelConfig
 from .task.optimizer_schema import OptimizerConfig
 from .task.task_schema import CIFAR10TaskSchema, MNISTTaskSchema
 from .trainer.trainer_schema import CPUTrainerSchema, GPUTrainerSchema
-from .transform_schema import MNISTTransformSchema as MNISTTransformSchema
 
 
 def setup_config() -> None:
