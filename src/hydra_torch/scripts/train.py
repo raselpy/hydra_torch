@@ -132,25 +132,39 @@ def main(cfg: DictConfig) -> None:
     else:
         try:
             mlflow.set_tracking_uri(tracking_uri)
-            registered_model_name = f"hydra_torch_{type(task.model).__name__}"
+
+            backbone_name = type(task.model.backbone).__name__
+            adapter_name = type(task.model.adapter).__name__
+
+            registered_model_name = f"hydra_torch_{backbone_name}"
+
             with mlflow.start_run(run_id=mlflow_logger.run_id):
+                mlflow.log_param("backbone", backbone_name)
+                mlflow.log_param("adapter", adapter_name)
+
                 model_info = mlflow.pytorch.log_model(
                     task.model,
                     artifact_path="model",
                     registered_model_name=registered_model_name,
                 )
+
             client = mlflow.tracking.MlflowClient()
             client.set_registered_model_alias(
                 name=registered_model_name,
                 alias="champion",
                 version=model_info.registered_model_version,
             )
+
             log.info(
                 f"Registered '{registered_model_name}' version "
                 f"{model_info.registered_model_version} and set alias 'champion'"
             )
+
         except Exception:
-            log.warning("Model registration failed; training results are unaffected.", exc_info=True)
+            log.warning(
+                "Model registration failed; training results are unaffected.",
+                exc_info=True,
+            )
 
 
 if __name__ == "__main__":

@@ -19,7 +19,13 @@ class MNISTDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
         self.pin_memory = pin_memory
         self.drop_last = drop_last
-        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+        self.transform = transforms.Compose(
+            [
+                transforms.Grayscale(num_output_channels=3),
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,)),
+            ]
+        )
 
     def prepare_data(self):
         MNIST(self.data_dir, train=True, download=True)
