@@ -2,8 +2,10 @@ from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING
 from pydantic.dataclasses import dataclass
 
-from config_schema import data_module_schema, logger_schema, trainer_schema
+from config_schema.data_module import data_module_schema
+from config_schema.logger import logger_schema
 from config_schema.task import task_schema
+from config_schema.trainer import trainer_schema
 
 
 @dataclass
