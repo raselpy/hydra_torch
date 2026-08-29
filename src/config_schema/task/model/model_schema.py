@@ -17,7 +17,13 @@ class ModelConfig:
 
 def setup_config() -> None:
     cs = ConfigStore.instance()
-    cs.store(group="task/model", name="model_schema", node=ModelConfig)
+
+    cs.store(
+        group="task/model",
+        name="model_schema",
+        node=ModelConfig,
+    )
+
     backbone_schema.setup_config()
     adapter_schema.setup_config()
     head_schema.setup_config()

@@ -1,3 +1,1 @@
-defaults: [backbone_schema]
-_target_: hydra_torch.models.backbones.ResNet18
-pretrained: false
+defaults: [resnet18_backbone_schema]

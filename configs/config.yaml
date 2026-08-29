@@ -6,5 +6,6 @@ defaults:
   - trainer: gpu
   - logger: mlflow          # <-- Added default group
 
+
 experiment_name: "hydra_torch_runs"
 seed: 42

@@ -3,4 +3,6 @@ defaults:
   - backbone: resnet18
   - adapter: linear_512_10
   - head: identity
+  - _self_
+
 _target_: hydra_torch.models.model.SimpleModel
