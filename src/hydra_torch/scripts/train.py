@@ -94,6 +94,16 @@ def main(cfg: DictConfig) -> None:
     mlflow_logger.experiment.set_tag(mlflow_logger.run_id, "experiment_name", cfg.experiment_name)
     mlflow_logger.experiment.set_tag(mlflow_logger.run_id, "seed", cfg.seed)
 
+    # Log dvc.lock so this run's exact data version is reproducible —
+    # DVC records the output hash for data/${data_module} here after
+    # `dvc repro`. To reproduce: `git checkout <commit>` + `dvc checkout`
+    # using this exact dvc.lock.
+    dvc_lock_path = os.path.join(_THIS_DIR, "..", "..", "..", "dvc.lock")
+    if os.path.exists(dvc_lock_path):
+        mlflow_logger.experiment.log_artifact(mlflow_logger.run_id, dvc_lock_path)
+    else:
+        log.warning("dvc.lock not found — data version will not be logged for this run.")
+
     # 4. Train
     log.info("Starting training loop...")
     trainer.fit(task, datamodule=data_module)
