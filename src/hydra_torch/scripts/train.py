@@ -149,16 +149,27 @@ def main(cfg: DictConfig) -> None:
                 )
 
             client = mlflow.tracking.MlflowClient()
-            client.set_registered_model_alias(
-                name=registered_model_name,
-                alias="champion",
-                version=model_info.registered_model_version,
-            )
 
-            log.info(
-                f"Registered '{registered_model_name}' version "
-                f"{model_info.registered_model_version} and set alias 'champion'"
-            )
+            should_promote = True
+            try:
+                current_champion = client.get_model_version_by_alias(registered_model_name, "champion")
+                champion_run = client.get_run(current_champion.run_id)
+                champion_acc = champion_run.data.metrics.get("test_accuracy")
+                new_acc = test_results[0].get("test_accuracy")
+                if champion_acc is not None and new_acc is not None:
+                    should_promote = new_acc > champion_acc
+            except mlflow.exceptions.RestException:
+                should_promote = True
+
+            if should_promote:
+                client.set_registered_model_alias(
+                    name=registered_model_name,
+                    alias="champion",
+                    version=model_info.registered_model_version,
+                )
+                log.info(f"New champion: version {model_info.registered_model_version} (acc={new_acc})")
+            else:
+                log.info(f"Run not promoted: acc={new_acc} <= current champion acc={champion_acc}")
 
         except Exception:
             log.warning(
