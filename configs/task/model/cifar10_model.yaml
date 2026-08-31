@@ -1,8 +1,6 @@
 defaults:
-  - model_schema
+  - CIFAR10ModelSchemq
   - backbone: resnet50
   - adapter: linear_2048_10
   - head: identity
   - _self_
-
-_target_: hydra_torch.models.model.CIFAR10Model

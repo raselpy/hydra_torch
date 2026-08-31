@@ -11,6 +11,17 @@ class OptimizerConfig:
     weight_decay: float = 0.0
 
 
+@dataclass
+class AdamOptimizerConfigSchema(OptimizerConfig):
+    _target_: str = "torch.optim.Adam"
+
+
+@dataclass
+class SgdOptimizerConfigSchema(OptimizerConfig):
+    _target_: str = "torch.optim.SGD"
+
+
 def setup_config() -> None:
     cs = ConfigStore.instance()
-    cs.store(group="task/optimizer", name="optimizer_schema", node=OptimizerConfig)
+    cs.store(group="task/optimizer", name="AdamOptimizerConfigSchema", node=AdamOptimizerConfigSchema)
+    cs.store(group="task/optimizer", name="SgdOptimizerConfigSchema", node=SgdOptimizerConfigSchema)

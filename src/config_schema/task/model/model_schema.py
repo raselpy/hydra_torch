@@ -15,14 +15,20 @@ class ModelConfig:
     head: Optional[dict[str, Any]] = None
 
 
+@dataclass
+class SimpleModelschema(ModelConfig):
+    _target_: str = "hydra_torch.models.model.SimpleModel"
+
+
+@dataclass
+class CIFAR10ModelSchemq(ModelConfig):
+    _target_: str = "hydra_torch.models.model.CIFAR10Model"
+
+
 def setup_config() -> None:
     cs = ConfigStore.instance()
-
-    cs.store(
-        group="task/model",
-        name="model_schema",
-        node=ModelConfig,
-    )
+    cs.store(group="task/model", name="CIFAR10ModelSchemq", node=CIFAR10ModelSchemq)
+    cs.store(group="task/model", name="SimpleModelschema", node=SimpleModelschema)
 
     backbone_schema.setup_config()
     adapter_schema.setup_config()
