@@ -12,7 +12,7 @@ COPY src ./src
 RUN pip install --no-cache-dir -e ".[serve]" \
     && pip install --no-cache-dir dvc
 
-COPY main.py params.yaml dvc.yaml ./
+COPY main.py params.yaml dvc.yaml dvc.lock ./
 COPY configs ./configs
 
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app

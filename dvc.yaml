@@ -5,7 +5,7 @@ stages:
   prepare_data:
     cmd: python -m src.hydra_torch.scripts.prepare_data data_module=${data_module} hydra.run.dir=.
     deps:
-      - src/hydra_torch/data_modules.py
+#      - src/hydra_torch/data_modules.py
       - src/hydra_torch/scripts/prepare_data.py
     outs:
       - data/${data_module}
