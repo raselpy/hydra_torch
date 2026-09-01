@@ -160,12 +160,12 @@ def main(cfg: DictConfig) -> None:
 
             client = mlflow.tracking.MlflowClient()
 
+            new_acc = test_results[0].get("test_accuracy")
             should_promote = True
             try:
                 current_champion = client.get_model_version_by_alias(registered_model_name, "champion")
                 champion_run = client.get_run(current_champion.run_id)
                 champion_acc = champion_run.data.metrics.get("test_accuracy")
-                new_acc = test_results[0].get("test_accuracy")
                 if champion_acc is not None and new_acc is not None:
                     should_promote = new_acc > champion_acc
             except mlflow.exceptions.RestException:
