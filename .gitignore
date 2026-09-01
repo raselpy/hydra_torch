@@ -28,3 +28,4 @@ build/
 # Hydra auxiliary output when hydra.run.dir=. (DVC-invoked runs)
 .hydra/
 *.log
+.coverage
