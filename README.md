@@ -5,26 +5,8 @@
 [![CI](https://github.com/raselpy/hydra_torch/actions/workflows/ci.yml/badge.svg)](https://github.com/raselpy/hydra_torch/actions/workflows/ci.yml)
 [![CD](https://github.com/raselpy/hydra_torch/actions/workflows/cd.yml/badge.svg)](https://github.com/raselpy/hydra_torch/actions/workflows/cd.yml)
 
-```mermaid
-flowchart LR
-    A[Hydra Config] --> B[PyTorch Lightning Training]
-    B --> C[MLflow Tracking]
-    C -->|accuracy-gated promotion| D[MLflow Model Registry
-    'champion' alias]
-    D --> E[FastAPI Serving]
-    B -.->|dvc.lock| F[(DVC-versioned Data)]
-```
+![Architecture Overview](docs/architecture-overview.png)
 
----
-
-## Why Hydra Torch?
-
-Most personal PyTorch projects hardcode hyperparameters, skip experiment tracking, and have no story for reproducing a specific result later. This project was built to close that gap end-to-end:
-
-- Every hyperparameter lives in a **typed, composable Hydra config** — not scattered `argparse` flags
-- Every run is **logged to MLflow** with its resolved config, git commit, and exact data version
-- Only models that **actually beat the current best** get promoted to serve traffic
-- The whole thing is **tested, linted, containerized, and shipped via CI/CD** — not just "it runs on my machine"
 
 ---
 
@@ -45,42 +27,7 @@ Most personal PyTorch projects hardcode hyperparameters, skip experiment trackin
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    subgraph Config
-        H[configs/*.yaml] --> CS[Typed ConfigStore schemas]
-    end
-
-    subgraph Training
-        CS --> DM[LightningDataModule
-        MNIST / CIFAR10]
-        CS --> MODEL[Backbone + Adapter + Head]
-        CS --> TR[PyTorch Lightning Trainer]
-        DM --> TR
-        MODEL --> TR
-    end
-
-    subgraph Tracking
-        TR --> MLF[MLflow Run
-        resolved_config.yaml + dvc.lock + metrics]
-        MLF --> CMP{new accuracy >
-        champion accuracy?}
-        CMP -->|yes| CHAMP[Promote to
-        'champion' alias]
-        CMP -->|no| KEEP[Kept as versioned
-        history only]
-    end
-
-    subgraph Serving
-        CHAMP --> SRV[FastAPI /predict]
-    end
-
-    subgraph Data
-        DVC[DVC: prepare_data stage] --> DM
-        DVC --> LOCK[dvc.lock]
-        LOCK --> MLF
-    end
-```
+![Detailed Architecture](docs/architecture-detailed.png)
 
 **Model composition** follows a **Backbone → Adapter → Head** pattern, each swappable independently via Hydra config groups:
 
@@ -236,6 +183,7 @@ python main.py <overrides from resolved_config.yaml>
 ```
 hydra_torch/
 ├── configs/                       # Hydra config groups
+├── docs/                           # Architecture diagrams
 ├── src/
 │   ├── config_schema/              # Typed ConfigStore schemas (mirrors configs/)
 │   └── hydra_torch/
@@ -309,13 +257,13 @@ ruff check .
 ## Technologies
 
 | Component              | Technology                                        |
-| ----------------------- |---------------------------------------------------|
-| Configuration           | Hydra + OmegaConf + Pydantic                      |
-| Training framework      | PyTorch Lightning                                 |
-| Deep learning            | PyTorch                                           |
-| Experiment tracking      | MLflow (tracking + Model Registry)                |
-| Pipeline / versioning    | DVC                                               |
-| Serving                  | FastAPI + Uvicorn                                 |
-| Containerization         | Docker (CUDA 12.9) + docker-compose               |
-| Testing / CI             | pytest + pytest-cov + ruff + GitHub Actions       |
-| CD / image registry      | GitHub Actions + GitHub Container Registry (GHCR) |
+| ----------------------- | -------------------------------------------------- |
+| Configuration           | Hydra + OmegaConf + Pydantic                       |
+| Training framework      | PyTorch Lightning                                  |
+| Deep learning            | PyTorch + Torchvision                              |
+| Experiment tracking      | MLflow (tracking + Model Registry)                 |
+| Pipeline / versioning    | DVC                                                 |
+| Serving                  | FastAPI + Uvicorn                                   |
+| Containerization         | Docker (CUDA 12.9) + docker-compose                 |
+| Testing / CI             | pytest + pytest-cov + ruff + GitHub Actions         |
+| CD / image registry      | GitHub Actions + GitHub Container Registry (GHCR)   |
