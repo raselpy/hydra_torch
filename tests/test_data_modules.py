@@ -33,6 +33,7 @@ def test_mnist_data_module_batch_shape(monkeypatch):
     monkeypatch.setattr("hydra_torch.data.data_modules.MNIST", fake_mnist)
 
     dm = MNISTDataModule(batch_size=4, data_dir="/tmp/fake_mnist")
+    dm.prepare_data()  # exercises the (mocked) download calls
     dm.setup("fit")
     dm.setup("test")
 
@@ -40,6 +41,9 @@ def test_mnist_data_module_batch_shape(monkeypatch):
     assert images.shape[1:] == (1, 28, 28)
     assert images.shape[0] <= 4
     assert labels.shape[0] == images.shape[0]
+
+    images, labels = next(iter(dm.val_dataloader()))
+    assert images.shape[1:] == (1, 28, 28)
 
     images, labels = next(iter(dm.test_dataloader()))
     assert images.shape[1:] == (1, 28, 28)
