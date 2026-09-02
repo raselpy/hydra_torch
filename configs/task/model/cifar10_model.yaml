@@ -1,5 +1,5 @@
 defaults:
-  - CIFAR10ModelSchemq
+  - CIFAR10ModelSchema
   - backbone: resnet50
   - adapter: linear_2048_10
   - head: identity
