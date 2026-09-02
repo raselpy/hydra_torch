@@ -45,7 +45,7 @@ def _patch_common(monkeypatch, run_id="run123"):
 
 
 def test_register_raises_when_no_version_matches_run(monkeypatch):
-    run_id = _patch_common(monkeypatch)
+    _patch_common(monkeypatch)
     fake_client = MagicMock()
     fake_client.search_model_versions.return_value = []
     monkeypatch.setattr(rm, "MlflowClient", lambda: fake_client)
