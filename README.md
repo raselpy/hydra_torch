@@ -7,16 +7,6 @@
 
 ![Architecture Overview](docs/architecture-overview.png)
 
----
-
-## Why Hydra Torch?
-
-Most personal PyTorch projects hardcode hyperparameters, skip experiment tracking, and have no story for reproducing a specific result later. This project was built to close that gap end-to-end:
-
-- Every hyperparameter lives in a **typed, composable Hydra config** — not scattered `argparse` flags
-- Every run is **logged to MLflow** with its resolved config, git commit, and exact data version
-- Only models that **actually beat the current best** get promoted to serve traffic
-- The whole thing is **tested, linted, containerized, and shipped via CI/CD** — not just "it runs on my machine"
 
 ---
 
