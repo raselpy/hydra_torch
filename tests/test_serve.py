@@ -41,8 +41,9 @@ def test_load_model_raises_clear_error_without_tracking_uri(monkeypatch):
         _load_model()
 
 def test_health_returns_503_when_model_not_loaded(monkeypatch):
-    import hydra_torch.serving.serve as serve_module
     from fastapi.testclient import TestClient
+
+    import hydra_torch.serving.serve as serve_module
 
     monkeypatch.setattr(serve_module, "_model", None)
     monkeypatch.setattr(serve_module, "_load_model", lambda: None)
@@ -52,9 +53,11 @@ def test_health_returns_503_when_model_not_loaded(monkeypatch):
 
 
 def test_health_returns_ok_when_model_loaded(monkeypatch):
-    import hydra_torch.serving.serve as serve_module
-    from fastapi.testclient import TestClient
     from unittest.mock import MagicMock
+
+    from fastapi.testclient import TestClient
+
+    import hydra_torch.serving.serve as serve_module
 
     monkeypatch.setattr(serve_module, "_model", MagicMock())
     monkeypatch.setattr(serve_module, "_load_model", lambda: None)  # skip real lifespan loading
