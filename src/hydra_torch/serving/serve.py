@@ -89,7 +89,9 @@ class PredictionResponse(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "model_loaded": _model is not None}
+    if _model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded yet")
+    return {"status": "ok", "model_loaded": True}
 
 
 @app.post("/predict", response_model=PredictionResponse)
