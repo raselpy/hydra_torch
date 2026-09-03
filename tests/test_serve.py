@@ -39,3 +39,26 @@ def test_load_model_raises_clear_error_without_tracking_uri(monkeypatch):
     monkeypatch.delenv("MLFLOW_TRACKING_URI", raising=False)
     with pytest.raises(RuntimeError, match="MLFLOW_TRACKING_URI"):
         _load_model()
+
+def test_health_returns_503_when_model_not_loaded(monkeypatch):
+    import hydra_torch.serving.serve as serve_module
+    from fastapi.testclient import TestClient
+
+    monkeypatch.setattr(serve_module, "_model", None)
+    monkeypatch.setattr(serve_module, "_load_model", lambda: None)
+    with TestClient(serve_module.app) as client:
+        response = client.get("/health")
+    assert response.status_code == 503
+
+
+def test_health_returns_ok_when_model_loaded(monkeypatch):
+    import hydra_torch.serving.serve as serve_module
+    from fastapi.testclient import TestClient
+    from unittest.mock import MagicMock
+
+    monkeypatch.setattr(serve_module, "_model", MagicMock())
+    monkeypatch.setattr(serve_module, "_load_model", lambda: None)  # skip real lifespan loading
+    with TestClient(serve_module.app) as client:
+        response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok", "model_loaded": True}
