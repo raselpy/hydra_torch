@@ -231,6 +231,17 @@ ruff check .
 - `tests/test_models.py::test_simple_model_forward_shape_1_channel_real_mnist` is an intentional, tracked `xfail` — see Known Limitations
 
 ---
+## API Documentation
+
+FastAPI auto-generates interactive API docs (Swagger UI) for the serving endpoint:
+
+![Swagger UI](docs/swagger-ui.png)
+
+Once the server is running, view it live at:
+
+http://localhost:8000/docs
+
+---
 
 ## Known Limitations
 
