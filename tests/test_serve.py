@@ -66,8 +66,9 @@ def test_health_returns_ok_when_model_loaded(monkeypatch):
     assert response.status_code == 200
     assert response.json() == {"status": "ok", "model_loaded": True}
 def test_load_model_loads_and_sets_globals(monkeypatch):
-    import hydra_torch.serving.serve as serve_module
     from unittest.mock import MagicMock
+
+    import hydra_torch.serving.serve as serve_module
 
     monkeypatch.setenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 
@@ -90,8 +91,9 @@ def test_load_model_loads_and_sets_globals(monkeypatch):
 
 
 def test_predict_returns_503_when_model_not_loaded(monkeypatch):
-    import hydra_torch.serving.serve as serve_module
     from fastapi.testclient import TestClient
+
+    import hydra_torch.serving.serve as serve_module
 
     monkeypatch.setattr(serve_module, "_model", None)
     monkeypatch.setattr(serve_module, "_load_model", lambda: None)
@@ -101,9 +103,11 @@ def test_predict_returns_503_when_model_not_loaded(monkeypatch):
 
 
 def test_predict_returns_400_for_invalid_image(monkeypatch):
-    import hydra_torch.serving.serve as serve_module
     from unittest.mock import MagicMock
+
     from fastapi.testclient import TestClient
+
+    import hydra_torch.serving.serve as serve_module
 
     monkeypatch.setattr(serve_module, "_model", MagicMock())
     monkeypatch.setattr(serve_module, "_load_model", lambda: None)
@@ -114,10 +118,12 @@ def test_predict_returns_400_for_invalid_image(monkeypatch):
 
 def test_predict_returns_prediction_for_valid_image(monkeypatch):
     import io
-    import torch
-    from PIL import Image
     from unittest.mock import MagicMock
+
+    import torch
     from fastapi.testclient import TestClient
+    from PIL import Image
+
     import hydra_torch.serving.serve as serve_module
 
     fake_model = MagicMock(return_value=torch.tensor([[10.0, 1.0] + [0.0] * 8]))
