@@ -1,5 +1,4 @@
 name: CD
-
 on:
   workflow_run:
     workflows: ["CI"]
@@ -7,9 +6,27 @@ on:
       - completed
     branches:
       - master
-
 jobs:
+  integration-test:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache CIFAR10 dataset
+        uses: actions/cache@v4
+        with:
+          path: data
+          key: cifar10-dataset-v1
+      - name: Run CPU-only end-to-end training smoke test
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml run --rm train \
+            trainer=cpu trainer.max_epochs=1
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v
+
   build-and-push:
+    needs: integration-test
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
@@ -17,14 +34,12 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
-
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build and push
         uses: docker/build-push-action@v6
         with:

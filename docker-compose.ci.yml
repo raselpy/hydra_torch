@@ -1,0 +1,8 @@
+services:
+  train:
+    build:
+      dockerfile: Dockerfile.test
+    deploy:
+      resources:
+        reservations:
+          devices: []
