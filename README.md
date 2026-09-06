@@ -138,7 +138,6 @@ This was manually verified during development across several runs — including 
 
 ## Experiments
 
-> **Note:** the section below is a template. Fill it in once you've run a controlled comparison (same dataset, same epoch budget, only the backbone changed) via `dvc repro` or `python main.py`. The informal single-epoch runs used during development (to verify the champion-promotion logic works, not to compare architectures) are not a fair basis for this table.
 
 ### ResNet18 vs ResNet50
 
@@ -147,15 +146,8 @@ This was manually verified during development across several runs — including 
 | `SimpleModel`       | MNIST   | ResNet18 | —      | —              | —      | _fill in_ |
 | `CIFAR10Model`      | CIFAR10 | ResNet50 | —      | —              | —      | _fill in_ |
 
-> **[Results Table]** — replace the placeholder row values above with real numbers from `mlflow metrics show` or the MLflow UI once both models have been trained for a matched number of epochs.
->
-> **[Accuracy Graph]** — export a train/val accuracy-vs-epoch chart from the MLflow UI (or `mlflow.pytorch` run comparison view) and embed it here.
->
-> **[Training Loss Graph]** — same, for training loss.
 
 ### Analysis
-
-> _Once the table and graphs above are filled in, summarize here: which backbone generalized better, whether the extra ResNet50 capacity was worth the added training time/params for this dataset size, and any overfitting/underfitting signal seen in the loss curves._
 
 ---
 
