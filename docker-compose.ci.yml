@@ -1,8 +1,15 @@
 services:
-  train:
+  train-ci:
     build:
+      context: .
       dockerfile: Dockerfile.test
-    deploy:
-      resources:
-        reservations:
-          devices: []
+    depends_on:
+      mlflow-server:
+        condition: service_healthy
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - HYDRA_FULL_ERROR=1
+    entrypoint: ["python", "main.py"]
+    volumes:
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
