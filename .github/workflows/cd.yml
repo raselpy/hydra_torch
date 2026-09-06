@@ -19,7 +19,7 @@ jobs:
           key: cifar10-dataset-v1
       - name: Run CPU-only end-to-end training smoke test
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml run --rm train \
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml run --rm train-ci \
             trainer=cpu trainer.max_epochs=1
       - name: Tear down
         if: always()
